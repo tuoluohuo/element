@@ -134,7 +134,11 @@ DateTimePicker 由 DatePicker 和 TimePicker 派生，`Picker Options` 或者其
               start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
               picker.$emit('pick', [start, end]);
             }
-          }]
+          }],
+          disabledDate: time => {
+            return time.getTime() > new Date(new Date().toLocaleDateString());
+          },
+          disabledType: 'next'
         },
         value1: [new Date(2000, 10, 10, 10, 10), new Date(2000, 10, 11, 10, 10)],
         value2: ''

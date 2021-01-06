@@ -25,13 +25,13 @@
                   size="small"
                   :disabled="rangeState.selecting"
                   ref="minInput"
-                  :placeholder="t('el.datepicker.startDate')"
+                  :placeholder="t('el.datepicker.startDate') + ' (yyyy-MM-dd)'"
                   class="el-date-range-picker__editor"
                   :value="minVisibleDate"
                   @input="val => handleDateInput(val, 'min')"
                   @change="val => handleDateChange(val, 'min')" />
               </span>
-              <span class="el-date-range-picker__time-picker-wrap" v-clickoutside="handleMinTimeClose">
+              <!-- <span class="el-date-range-picker__time-picker-wrap" v-clickoutside="handleMinTimeClose">
                 <el-input
                   size="small"
                   class="el-date-range-picker__editor"
@@ -48,7 +48,7 @@
                   :visible="minTimePickerVisible"
                   @mounted="$refs.minTimePicker.format=timeFormat">
                 </time-picker>
-              </span>
+              </span> -->
             </span>
             <span class="el-icon-arrow-right"></span>
             <span class="el-date-range-picker__editors-wrap is-right">
@@ -57,13 +57,13 @@
                   size="small"
                   class="el-date-range-picker__editor"
                   :disabled="rangeState.selecting"
-                  :placeholder="t('el.datepicker.endDate')"
+                  :placeholder="t('el.datepicker.endDate') + ' (yyyy-MM-dd)'"
                   :value="maxVisibleDate"
                   :readonly="!minDate"
                   @input="val => handleDateInput(val, 'max')"
                   @change="val => handleDateChange(val, 'max')" />
               </span>
-              <span class="el-date-range-picker__time-picker-wrap" v-clickoutside="handleMaxTimeClose">
+              <!-- <span class="el-date-range-picker__time-picker-wrap" v-clickoutside="handleMaxTimeClose">
                 <el-input
                   size="small"
                   class="el-date-range-picker__editor"
@@ -81,7 +81,7 @@
                   :visible="maxTimePickerVisible"
                   @mounted="$refs.maxTimePicker.format=timeFormat">
                 </time-picker>
-              </span>
+              </span> -->
             </span>
           </div>
           <div class="el-picker-panel__content el-date-range-picker__content is-left">
@@ -321,8 +321,8 @@
         defaultTime: null,
         minDate: '',
         maxDate: '',
-        leftDate: new Date(),
-        rightDate: nextMonth(new Date()),
+        leftDate: prevMonth(new Date()),
+        rightDate: new Date(),
         rangeState: {
           endDate: null,
           selecting: false,
@@ -347,7 +347,8 @@
         timeUserInput: {
           min: null,
           max: null
-        }
+        },
+        disabledType: ''
       };
     },
 
@@ -427,25 +428,28 @@
           }
         }
       },
-
       defaultValue(val) {
         if (!Array.isArray(this.value)) {
           const [left, right] = calcDefaultValue(val);
-          this.leftDate = left;
-          this.rightDate = val && val[1] && this.unlinkPanels
-            ? right
-            : nextMonth(this.leftDate);
+          if(this.disabledType === 'next'){
+            this.leftDate = prevMonth(new Date());
+            this.rightDate = left;
+          }else{
+            this.leftDate = left;
+            this.rightDate = val && val[1] && this.unlinkPanels
+              ? right
+              : nextMonth(this.leftDate);
+          }
         }
       }
     },
-
     methods: {
       handleClear() {
         this.minDate = null;
         this.maxDate = null;
         this.leftDate = calcDefaultValue(this.defaultValue)[0];
         this.rightDate = nextMonth(this.leftDate);
-        this.$emit('pick', null);
+        this.$emit('pick', '');
       },
 
       handleChangeRange(val) {
@@ -456,9 +460,18 @@
 
       handleDateInput(value, type) {
         this.dateUserInput[type] = value;
+        let reg1 = /^\d{4}\-\d{1}\-\d{1}$/;
+        let reg2 = /^\d{4}\-\d{1}\-\d{2}$/;
+        if(reg1.test(value)){//自动补0
+          let arr = value.split('-');
+          value = arr[0] + '-0' + arr[1] + '-0' + arr[2];
+        }else if(reg2.test(value)){
+          let arr = value.split('-');
+          value = arr[0] + '-0' + arr[1] + '-' + arr[2];
+        }
         if (value.length !== this.dateFormat.length) return;
         const parsedValue = parseDate(value, this.dateFormat);
-
+        
         if (parsedValue) {
           if (typeof this.disabledDate === 'function' &&
             this.disabledDate(new Date(parsedValue))) {
@@ -483,6 +496,10 @@
       handleDateChange(value, type) {
         const parsedValue = parseDate(value, this.dateFormat);
         if (parsedValue) {
+          if (typeof this.disabledDate === 'function' &&
+            this.disabledDate(new Date(parsedValue))) {
+            return;
+          }
           if (type === 'min') {
             this.minDate = modifyDate(this.minDate, parsedValue.getFullYear(), parsedValue.getMonth(), parsedValue.getDate());
             if (this.minDate > this.maxDate) {

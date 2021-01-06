@@ -831,6 +831,7 @@ export default {
       this.picker.selectionMode = this.selectionMode;
       this.picker.unlinkPanels = this.unlinkPanels;
       this.picker.arrowControl = this.arrowControl || this.timeArrowControl || false;
+      this.picker.disabledType = this.pickerOptions.disabledType;
       this.$watch('format', (format) => {
         this.picker.format = format;
       });

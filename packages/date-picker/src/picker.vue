@@ -50,7 +50,7 @@
     <input
       autocomplete="off"
       :placeholder="startPlaceholder"
-      :value="displayValue && displayValue[0]"
+      :value="displayValue && displayValue[0].replace(' 00:00:00','')"
       :disabled="pickerDisabled"
       v-bind="firstInputId"
       :readonly="!editable || readonly"
@@ -65,7 +65,7 @@
     <input
       autocomplete="off"
       :placeholder="endPlaceholder"
-      :value="displayValue && displayValue[1]"
+      :value="displayValue && displayValue[1].replace(' 00:00:00','')"
       :disabled="pickerDisabled"
       v-bind="secondInputId"
       :readonly="!editable || readonly"
@@ -831,7 +831,8 @@ export default {
       this.picker.selectionMode = this.selectionMode;
       this.picker.unlinkPanels = this.unlinkPanels;
       this.picker.arrowControl = this.arrowControl || this.timeArrowControl || false;
-      this.picker.disabledType = this.pickerOptions.disabledType;
+      //禁用类型 'after' 今天之后 'before' 今天之前
+      this.picker.disabledType = this.pickerOptions ? this.pickerOptions.disabledType || '' : '';
       this.$watch('format', (format) => {
         this.picker.format = format;
       });

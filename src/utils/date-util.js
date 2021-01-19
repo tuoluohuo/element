@@ -185,7 +185,7 @@ export const range = function(n) {
 };
 
 export const modifyDate = function(date, y, m, d) {
-  return new Date(y, m, d, date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
+  return new Date(y, m, d, date ? date.getHours() : '00', date ? date.getMinutes() : '00', date ? date.getSeconds() : '00', date ? date.getMilliseconds() : '00');
 };
 
 export const modifyTime = function(date, h, m, s) {

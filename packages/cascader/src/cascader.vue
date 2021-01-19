@@ -489,8 +489,9 @@ export default {
       const { checkedValue, config } = this;
       if (!isEmpty(checkedValue)) {
         const node = this.panel.getNodeByValue(checkedValue);
-        if (node && (config.checkStrictly || node.isLeaf)) {
+        if (node && (config.checkStrictly || node.isLeaf || config.changeOnSelect)) {
           this.presentText = node.getText(this.showAllLevels, this.separator);
+          
           return;
         }
       }

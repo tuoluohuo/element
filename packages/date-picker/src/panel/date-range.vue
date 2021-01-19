@@ -28,6 +28,7 @@
                   :placeholder="t('el.datepicker.startDate') + ' (yyyy-MM-dd)'"
                   class="el-date-range-picker__editor"
                   :value="minVisibleDate"
+                  @blur="handleDateBlur('min')"
                   @input="val => handleDateInput(val, 'min')"
                   @change="val => handleDateChange(val, 'min')" />
               </span>
@@ -60,6 +61,7 @@
                   :placeholder="t('el.datepicker.endDate') + ' (yyyy-MM-dd)'"
                   :value="maxVisibleDate"
                   :readonly="!minDate"
+                  @blur="handleDateBlur('max')"
                   @input="val => handleDateInput(val, 'max')"
                   @change="val => handleDateChange(val, 'max')" />
               </span>
@@ -460,18 +462,8 @@
 
       handleDateInput(value, type) {
         this.dateUserInput[type] = value;
-        let reg1 = /^\d{4}\-\d{1}\-\d{1}$/;
-        let reg2 = /^\d{4}\-\d{1}\-\d{2}$/;
-        if(reg1.test(value)){//自动补0
-          let arr = value.split('-');
-          value = arr[0] + '-0' + arr[1] + '-0' + arr[2];
-        }else if(reg2.test(value)){
-          let arr = value.split('-');
-          value = arr[0] + '-0' + arr[1] + '-' + arr[2];
-        }
         if (value.length !== this.dateFormat.length) return;
         const parsedValue = parseDate(value, this.dateFormat);
-        
         if (parsedValue) {
           if (typeof this.disabledDate === 'function' &&
             this.disabledDate(new Date(parsedValue))) {
@@ -512,6 +504,24 @@
             }
           }
         }
+      },
+
+      handleDateBlur(type){
+        let value = type === 'min' ? this.minVisibleDate || '' : this.maxVisibleDate || '';
+        let reg1 = /^\d{4}\-\d{1}\-\d{1}$/;
+        let reg2 = /^\d{4}\-\d{1}\-\d{2}$/;
+        let reg3 = /^\d{4}\-\d{2}\-\d{1}$/;
+        if(reg1.test(value)){//自动补0
+          let arr = value.split('-');
+          value = arr[0] + '-0' + arr[1] + '-0' + arr[2];
+        }else if(reg2.test(value)){
+          let arr = value.split('-');
+          value = arr[0] + '-0' + arr[1] + '-' + arr[2];
+        }else if(reg3.test(value)){
+          let arr = value.split('-');
+          value = arr[0] + '-' + arr[1] + '-0' + arr[2];
+        }
+        this.handleDateInput(value, type);
       },
 
       handleTimeInput(value, type) {

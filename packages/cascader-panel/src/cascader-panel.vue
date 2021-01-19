@@ -41,7 +41,8 @@ const DefaultProps = {
   children: 'children',
   leaf: 'leaf',
   disabled: 'disabled',
-  hoverThreshold: 500
+  hoverThreshold: 500,
+  changeOnSelect: false
 };
 
 const isLeaf = el => !el.getAttribute('aria-owns');
@@ -132,6 +133,9 @@ export default {
     },
     renderLabelFn() {
       return this.renderLabel || this.$scopedSlots.default;
+    },
+    changeOnSelect() {
+      return this.config.changeOnSelect;
     }
   },
 

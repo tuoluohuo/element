@@ -971,7 +971,8 @@
   <span class="demonstration">单选选择任意一级选项</span>
   <el-cascader
     :options="options"
-    :props="{ checkStrictly: true }"
+    :props="{ checkStrictly: false,expandTrigger: 'hover',changeOnSelect: true }"
+    :show-all-levels="false"
     clearable></el-cascader>
 </div>
 <div class="block">
